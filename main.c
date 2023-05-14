@@ -1,5 +1,14 @@
 #include <stdio.h>
 
+#ifdef WIN32
+    #include <io.h>
+    #define F_OK 0
+    #define access _access
+#else
+    #include <unistd.h>
+#endif
+    
+
 #define TRUE 1
 #define FALSE 0 
 
@@ -11,6 +20,10 @@ main(int argc, char *argv[]){
         printf("HELP:");
     } else {
         FILE *fp;
+        if (access(argv[1], F_OK) != 0){
+            printf("rdme: %s: No such file\n", argv[1]);
+            return -1;
+        }
         fp = fopen(argv[1], "r");
         fseek(fp, 0, SEEK_END);
         int file_size = ftell(fp);
@@ -25,6 +38,7 @@ main(int argc, char *argv[]){
             ctx[i] = c;
             ++i;
         }
+
         int heading = FALSE;
         for (int i = 0; i < file_size; i++){
             if (heading == TRUE){
