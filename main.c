@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "config.h"
 
 #ifdef WIN32
     #include <io.h>
@@ -46,13 +47,13 @@ main(int argc, char *argv[]){
                     printf("%c", ctx[i]);
                     heading = FALSE;
                 } else { 
-                    printf("\033[1;31m%c\033[0m", ctx[i]);
+                    printf("\033[1;38;2;%i;%i;%im%c\033[0m",rgb[0], rgb[1], rgb[2], ctx[i]);
                 }
             } 
             else if (heading == FALSE){
                 if (ctx[i] == '#'){
                     heading = TRUE;
-                    printf("\033[1;31m%c\033[0m", ctx[i]);
+                    printf("\033[1;38;2;%i;%i;%im%c\033[0m",rgb[0], rgb[1], rgb[2], ctx[i]);
                 } else {
                     printf("%c", ctx[i]);
                 }
