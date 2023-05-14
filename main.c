@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include <unistd.h>
 
 #include "config.h"
@@ -42,33 +44,36 @@ char
 int 
 main(int argc, char *argv[]){
     if (argc < 2) {
-        printf("usage: rdme FILE");
+        printf("usage: rdme FILE\n");
     } else if (argc > 2) {
-        printf("usage: rdme FILE");
+        printf("usage: rdme FILE\n");
     } else {
+        if (strcmp(argv[1],"-h") == 0 || strcmp(argv[1],"--help") == 0){
+            printf("usage: rdme FILE\n");
+        }
+        else{
+            char *ctx = getctx(argv[1]);
+            int file_size = getfilesize(argv[1]);
 
-        char *ctx = getctx(argv[1]);
-        int file_size = getfilesize(argv[1]);
-
-        int heading = FALSE;
-        for (int i = 0; i < file_size; i++){
-            if (heading == TRUE){
-                if (ctx[i] == '\n'){
-                    printf("%c", ctx[i]);
-                    heading = FALSE;
-                } else { 
-                    printf("\033[1;38;2;%i;%i;%im%c\033[0m",rgb[0], rgb[1], rgb[2], ctx[i]);
-                }
-            } 
-            else if (heading == FALSE){
-                if (ctx[i] == '#'){
-                    heading = TRUE;
-                    printf("\033[1;38;2;%i;%i;%im%c\033[0m",rgb[0], rgb[1], rgb[2], ctx[i]);
-                } else {
-                    printf("%c", ctx[i]);
+            int heading = FALSE;
+            for (int i = 0; i < file_size; i++){
+                if (heading == TRUE){
+                    if (ctx[i] == '\n'){
+                        printf("%c", ctx[i]);
+                        heading = FALSE;
+                    } else { 
+                        printf("\033[1;38;2;%i;%i;%im%c\033[0m",rgb[0], rgb[1], rgb[2], ctx[i]);
+                    }
+                } 
+                else if (heading == FALSE){
+                    if (ctx[i] == '#'){
+                        heading = TRUE;
+                        printf("\033[1;38;2;%i;%i;%im%c\033[0m",rgb[0], rgb[1], rgb[2], ctx[i]);
+                    } else {
+                        printf("%c", ctx[i]);
+                    }
                 }
             }
-            
         }
     }
 }
