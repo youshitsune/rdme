@@ -56,19 +56,39 @@ main(int argc, char *argv[]){
             int file_size = getfilesize(argv[1]);
 
             int heading = FALSE;
+            int code_block = FALSE;
+            int ncode = 0;
             for (int i = 0; i < file_size; i++){
-                if (heading == TRUE){
-                    if (ctx[i] == '\n'){
-                        printf("%c", ctx[i]);
-                        heading = FALSE;
-                    } else { 
-                        printf("\033[1;38;2;%i;%i;%im%c\033[0m",rgb[0], rgb[1], rgb[2], ctx[i]);
+                if (heading == TRUE || code_block == TRUE){
+                    if (heading == TRUE){
+                        if (ctx[i] == '\n'){
+                            printf("%c", ctx[i]);
+                            heading = FALSE;
+                        } else { 
+                            printf("\033[1;38;2;%i;%i;%im%c\033[0m",header[0], header[1], header[2], ctx[i]);
+                        }
+                    } else {
+                        if (ctx[i] == '`') { 
+                            if (ncode < 5) {
+                                ncode++;
+                                printf("\033[1;38;2;%i;%i;%im%c\033[0m",block[0], block[1], block[2], ctx[i]);
+                            } else if (ncode == 5) {
+                                printf("\033[1;38;2;%i;%i;%im%c\033[0m",block[0], block[1], block[2], ctx[i]);
+                                code_block = FALSE;
+                                ncode = 0;
+                            }
+                        } else {
+                            printf("\033[1;38;2;%i;%i;%im%c\033[0m",block[0], block[1], block[2], ctx[i]);
+                        }
                     }
-                } 
-                else if (heading == FALSE){
-                    if (ctx[i] == '#'){
+                } else {
+                    if (ctx[i] == '#') {
                         heading = TRUE;
-                        printf("\033[1;38;2;%i;%i;%im%c\033[0m",rgb[0], rgb[1], rgb[2], ctx[i]);
+                        printf("\033[1;38;2;%i;%i;%im%c\033[0m",header[0], header[1], header[2], ctx[i]);
+                    } else if (ctx[i] == '`') {
+                        code_block = TRUE;
+                        ncode++;
+                        printf("\033[1;38;2;%i;%i;%im%c\033[0m",block[0], block[1], block[2], ctx[i]);
                     } else {
                         printf("%c", ctx[i]);
                     }
