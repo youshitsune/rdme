@@ -57,9 +57,11 @@ main(int argc, char *argv[]){
 
             int heading = FALSE;
             int code_block = FALSE;
+            int bold = FALSE;
             int ncode = 0;
+            int nbold = 0;
             for (int i = 0; i < file_size; i++){
-                if (heading == TRUE || code_block == TRUE){
+                if (heading == TRUE || code_block == TRUE || bold == TRUE){
                     if (heading == TRUE){
                         if (ctx[i] == '\n'){
                             printf("%c", ctx[i]);
@@ -67,7 +69,19 @@ main(int argc, char *argv[]){
                         } else { 
                             printf("\033[1;38;2;%i;%i;%im%c\033[0m",header[0], header[1], header[2], ctx[i]);
                         }
-                    } else {
+                    } else if (bold == TRUE) {
+                        if (ctx[i] == '*'){
+                            if (nbold < 3) {
+                                nbold++;
+                            } else if (nbold == 3) {
+                                bold = FALSE;
+                                nbold = 0;
+                            } 
+                        } else {
+                                printf("\033[1m%c\033[0m", ctx[i]);
+                        }
+
+                    } else if (code_block == TRUE){
                         if (ctx[i] == '`') { 
                             if (ncode < 5) {
                                 ncode++;
@@ -89,7 +103,11 @@ main(int argc, char *argv[]){
                         code_block = TRUE;
                         ncode++;
                         printf("\033[1;38;2;%i;%i;%im%c\033[0m",block[0], block[1], block[2], ctx[i]);
-                    } else {
+                    } else if (ctx[i] == '*') {
+                        bold = TRUE;
+                        nbold++;
+                    } 
+                    else {
                         printf("%c", ctx[i]);
                     }
                 }
