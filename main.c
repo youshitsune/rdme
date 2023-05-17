@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <unistd.h>
 
 #include "config.h"
@@ -58,10 +57,12 @@ main(int argc, char *argv[]){
             int heading = FALSE;
             int code_block = FALSE;
             int bold = FALSE;
+            int denote = FALSE;
+            int first_tick = FALSE;
             int ncode = 0;
             int nbold = 0;
             for (int i = 0; i < file_size; i++){
-                if (heading == TRUE || code_block == TRUE || bold == TRUE){
+                if (heading == TRUE || code_block == TRUE || bold == TRUE || denote == TRUE){
                     if (heading == TRUE){
                         if (ctx[i] == '\n'){
                             printf("%c", ctx[i]);
@@ -83,6 +84,10 @@ main(int argc, char *argv[]){
 
                     } else if (code_block == TRUE){
                         if (ctx[i] == '`') { 
+                            if (first_tick == TRUE){
+                                printf("\033[1;38;2;%i;%i;%im%c\033[0m",block[0], block[1], block[2], ctx[i]);
+                                first_tick = FALSE;
+                            }
                             if (ncode < 5) {
                                 ncode++;
                                 printf("\033[1;38;2;%i;%i;%im%c\033[0m",block[0], block[1], block[2], ctx[i]);
@@ -92,7 +97,24 @@ main(int argc, char *argv[]){
                                 ncode = 0;
                             }
                         } else {
+                            if (ncode == 1){
+                                denote = TRUE;
+                                code_block = FALSE;
+                                printf("\033[1;38;2;%i;%i;%im`\033[0m", highlight[0], highlight[1], highlight[2]);
+                                printf("\033[1;38;2;%i;%i;%im%c\033[0m", highlight[0], highlight[1], highlight[2], ctx[i]);
+                            } else {
                             printf("\033[1;38;2;%i;%i;%im%c\033[0m",block[0], block[1], block[2], ctx[i]);
+                            }
+                        }
+                    } else if (denote == TRUE) {
+                        if (ctx[i] == '`') {
+                            if (ncode == 1) {
+                                denote = FALSE;
+                                ncode = 0;
+                                printf("\033[1;38;2;%i;%i;%im%c\033[0m", highlight[0], highlight[1], highlight[2], ctx[i]);
+                            }
+                        } else {
+                                printf("\033[1;38;2;%i;%i;%im%c\033[0m", highlight[0], highlight[1], highlight[2], ctx[i]);
                         }
                     }
                 } else {
@@ -102,7 +124,7 @@ main(int argc, char *argv[]){
                     } else if (ctx[i] == '`') {
                         code_block = TRUE;
                         ncode++;
-                        printf("\033[1;38;2;%i;%i;%im%c\033[0m",block[0], block[1], block[2], ctx[i]);
+                        first_tick = TRUE;
                     } else if (ctx[i] == '*') {
                         bold = TRUE;
                         nbold++;
