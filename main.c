@@ -59,10 +59,11 @@ main(int argc, char *argv[]){
             int bold = FALSE;
             int denote = FALSE;
             int first_tick = FALSE;
+            int italic = FALSE;
             int ncode = 0;
             int nbold = 0;
             for (int i = 0; i < file_size; i++){
-                if (heading == TRUE || code_block == TRUE || bold == TRUE || denote == TRUE){
+                if (heading == TRUE || code_block == TRUE || bold == TRUE || denote == TRUE || italic == TRUE){
                     if (heading == TRUE){
                         if (ctx[i] == '\n'){
                             printf("%c", ctx[i]);
@@ -79,7 +80,13 @@ main(int argc, char *argv[]){
                                 nbold = 0;
                             } 
                         } else {
+                            if (nbold == 1){
+                                italic = TRUE;
+                                bold = FALSE;
+                                printf("\033[3m%c\033[0m", ctx[i]);
+                            } else {
                                 printf("\033[1m%c\033[0m", ctx[i]);
+                            }
                         }
 
                     } else if (code_block == TRUE){
@@ -115,6 +122,13 @@ main(int argc, char *argv[]){
                             }
                         } else {
                                 printf("\033[1;38;2;%i;%i;%im%c\033[0m", highlight[0], highlight[1], highlight[2], ctx[i]);
+                        }
+                    } else if (italic == TRUE) {
+                        if (ctx[i] == '*') {
+                            italic = FALSE;
+                            nbold = 0;
+                        } else {
+                            printf("\033[3m%c\033[0m", ctx[i]);
                         }
                     }
                 } else {
