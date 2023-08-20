@@ -132,7 +132,7 @@ main(int argc, char *argv[]){
                         }
                     }
                 } else {
-                    if (ctx[i] == '#') {
+                    if (ctx[i] == '#' && (ctx[i-1]=='\n' || i == 0)) {
                         heading = TRUE;
                         printf("\033[1;38;2;%i;%i;%im%c\033[0m",header[0], header[1], header[2], ctx[i]);
                     } else if (ctx[i] == '`') {
